@@ -111,6 +111,8 @@ class Pdf
     {
         if ($this->outputFile === null) {
             $this->outputFile = new File('', '.pdf', self::TMP_PREFIX);
+
+            $this->outputFile->delete = false;
         }
 
         return $this->outputFile;

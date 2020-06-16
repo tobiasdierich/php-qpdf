@@ -2,6 +2,7 @@
 
 namespace tests;
 
+use finfo;
 use PHPUnit\Framework\TestCase;
 use tobiasdierich\qpdf\Pdf;
 
@@ -23,7 +24,11 @@ class PdfTest extends TestCase
         $outputPdf = $this->pdf->execute();
 
         $this->assertTrue($this->pdf->getCommand()->getExecuted());
-        $this->assertFileExists($outputPdf->getOutputFile()->getFileName());
+        $this->assertFileExists($this->pdf->getOutputFile()->getFileName());
+        $this->assertGreaterThan(0, filesize($this->pdf->getOutputFile()->getFileName()));
+
+        $finfo = new finfo(FILEINFO_MIME_TYPE);
+        $this->assertEquals('application/pdf', $finfo->buffer($outputPdf->toString()));
 
 
         $tmpFile = $this->pdf->getOutputFile()->getFileName();
