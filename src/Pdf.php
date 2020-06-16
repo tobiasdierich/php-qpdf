@@ -15,9 +15,14 @@ class Pdf
     protected $command;
 
     /**
+     * @var string
+     */
+    protected $originalFile;
+
+    /**
      * @var \mikehaertl\tmp\File
      */
-    protected $tmpFile;
+    protected $outputFile;
 
     /**
      * @var string
@@ -31,6 +36,8 @@ class Pdf
      */
     public function __construct($pdf)
     {
+        $this->originalFile = $pdf;
+
         $this->getCommand()
             ->addArg($pdf, null, true);
     }
@@ -51,16 +58,16 @@ class Pdf
     }
 
     /**
-     * @return bool
+     * @return \tobiasdierich\qpdf\Pdf|bool
      */
     public function execute()
     {
         $command = $this->getCommand();
         if ($command->getExecuted()) {
-            return false;
+            return new static($this->getOutputFile()->getFileName());
         }
 
-        $outputFilename = $this->getTmpFile()->getFileName();
+        $outputFilename = $this->getOutputFile()->getFileName();
 
         $command->addArg($outputFilename, null, true);
 
@@ -72,7 +79,7 @@ class Pdf
             }
         }
 
-        return true;
+        return new static($outputFilename);
     }
 
     /**
@@ -80,11 +87,7 @@ class Pdf
      */
     public function toString()
     {
-        if (!$this->getCommand()->getExecuted() && !$this->execute()) {
-            return false;
-        }
-
-        return file_get_contents($this->getTmpFile()->getFileName());
+        return file_get_contents($this->originalFile);
     }
 
     /**
@@ -104,13 +107,13 @@ class Pdf
     /**
      * @return \mikehaertl\tmp\File
      */
-    public function getTmpFile()
+    public function getOutputFile()
     {
-        if ($this->tmpFile === null) {
-            $this->tmpFile = new File('', '.pdf', self::TMP_PREFIX);
+        if ($this->outputFile === null) {
+            $this->outputFile = new File('', '.pdf', self::TMP_PREFIX);
         }
 
-        return $this->tmpFile;
+        return $this->outputFile;
     }
 
     /**

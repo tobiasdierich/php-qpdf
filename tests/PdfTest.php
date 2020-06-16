@@ -19,11 +19,14 @@ class PdfTest extends TestCase
 
         $this->pdf = new Pdf($document1);
         $this->assertInstanceOf('tobiasdierich\qpdf\Pdf', $this->pdf->background($document2));
-        $this->assertTrue($this->pdf->execute());
-        $this->assertFileExists($this->pdf->getTmpFile()->getFileName());
+
+        $outputPdf = $this->pdf->execute();
+
+        $this->assertTrue($this->pdf->getCommand()->getExecuted());
+        $this->assertFileExists($outputPdf->getOutputFile()->getFileName());
 
 
-        $tmpFile = $this->pdf->getTmpFile()->getFileName();
+        $tmpFile = $this->pdf->getOutputFile()->getFileName();
         $this->assertEquals("qpdf '$document1' '--underlay' '$document2' '--repeat'='1' '--' '$tmpFile'", (string) $this->pdf->getCommand());
     }
 
